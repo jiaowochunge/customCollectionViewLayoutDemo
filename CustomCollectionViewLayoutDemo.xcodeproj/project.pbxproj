@@ -14,6 +14,9 @@
 		FFE2DF7B1B7C39E0009E4D10 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFE2DF7A1B7C39E0009E4D10 /* Images.xcassets */; };
 		FFE2DF7E1B7C39E0009E4D10 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFE2DF7C1B7C39E0009E4D10 /* LaunchScreen.xib */; };
 		FFE2DF8A1B7C39E0009E4D10 /* CustomCollectionViewLayoutDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF891B7C39E0009E4D10 /* CustomCollectionViewLayoutDemoTests.m */; };
+		FFE2DF991B7C39F8009E4D10 /* NumCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF941B7C39F8009E4D10 /* NumCollectionViewCell.m */; };
+		FFE2DF9A1B7C39F8009E4D10 /* NumCollectionReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF961B7C39F8009E4D10 /* NumCollectionReusableView.m */; };
+		FFE2DF9B1B7C39F8009E4D10 /* DoubleGridLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF981B7C39F8009E4D10 /* DoubleGridLayout.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +43,12 @@
 		FFE2DF831B7C39E0009E4D10 /* CustomCollectionViewLayoutDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CustomCollectionViewLayoutDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFE2DF881B7C39E0009E4D10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FFE2DF891B7C39E0009E4D10 /* CustomCollectionViewLayoutDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomCollectionViewLayoutDemoTests.m; sourceTree = "<group>"; };
+		FFE2DF931B7C39F8009E4D10 /* NumCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumCollectionViewCell.h; sourceTree = "<group>"; };
+		FFE2DF941B7C39F8009E4D10 /* NumCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumCollectionViewCell.m; sourceTree = "<group>"; };
+		FFE2DF951B7C39F8009E4D10 /* NumCollectionReusableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumCollectionReusableView.h; sourceTree = "<group>"; };
+		FFE2DF961B7C39F8009E4D10 /* NumCollectionReusableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumCollectionReusableView.m; sourceTree = "<group>"; };
+		FFE2DF971B7C39F8009E4D10 /* DoubleGridLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleGridLayout.h; sourceTree = "<group>"; };
+		FFE2DF981B7C39F8009E4D10 /* DoubleGridLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DoubleGridLayout.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +94,12 @@
 				FFE2DF721B7C39E0009E4D10 /* AppDelegate.m */,
 				FFE2DF741B7C39E0009E4D10 /* ViewController.h */,
 				FFE2DF751B7C39E0009E4D10 /* ViewController.m */,
+				FFE2DF931B7C39F8009E4D10 /* NumCollectionViewCell.h */,
+				FFE2DF941B7C39F8009E4D10 /* NumCollectionViewCell.m */,
+				FFE2DF951B7C39F8009E4D10 /* NumCollectionReusableView.h */,
+				FFE2DF961B7C39F8009E4D10 /* NumCollectionReusableView.m */,
+				FFE2DF971B7C39F8009E4D10 /* DoubleGridLayout.h */,
+				FFE2DF981B7C39F8009E4D10 /* DoubleGridLayout.m */,
 				FFE2DF771B7C39E0009E4D10 /* Main.storyboard */,
 				FFE2DF7A1B7C39E0009E4D10 /* Images.xcassets */,
 				FFE2DF7C1B7C39E0009E4D10 /* LaunchScreen.xib */,
@@ -220,8 +235,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFE2DF761B7C39E0009E4D10 /* ViewController.m in Sources */,
+				FFE2DF991B7C39F8009E4D10 /* NumCollectionViewCell.m in Sources */,
+				FFE2DF9B1B7C39F8009E4D10 /* DoubleGridLayout.m in Sources */,
 				FFE2DF731B7C39E0009E4D10 /* AppDelegate.m in Sources */,
 				FFE2DF701B7C39E0009E4D10 /* main.m in Sources */,
+				FFE2DF9A1B7C39F8009E4D10 /* NumCollectionReusableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
