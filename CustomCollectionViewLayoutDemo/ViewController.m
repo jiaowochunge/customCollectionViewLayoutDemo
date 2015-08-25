@@ -27,18 +27,18 @@
     DoubleGridLayout *layout = [[DoubleGridLayout alloc] init];
     layout.rowHeight = 30;
     layout.columnWidth = 50;
-    layout.rowNumber = 30;
-    layout.columnNumber = 10;
+    layout.rowNumber = 31;
+    layout.columnNumber = 11;
     layout.leftHeaderWidth = 80;
     layout.topHeaderHeight = 50;
     layout.supplyHeaderHeight = 40;
     layout.showHorizonLine = YES;
     layout.showVerticalLine = YES;
     
-    NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:300];
-    for (int i = 0; i != 10; ++i) {
-        for (int j = 0; j != 30; ++j) {
-            [tmpArr addObject:[NSNumber numberWithInt:i * 30 + j]];
+    NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:341];
+    for (int i = 0; i != 11; ++i) {
+        for (int j = 0; j != 31; ++j) {
+            [tmpArr addObject:[NSNumber numberWithInt:i * 31 + j]];
         }
     }
     self.collectionData = tmpArr;

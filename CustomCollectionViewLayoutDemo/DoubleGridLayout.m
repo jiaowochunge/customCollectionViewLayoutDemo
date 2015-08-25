@@ -62,7 +62,7 @@ NSInteger const zIndexCell = 0;
 //    if (!self.cellFrameArr) {
         // 缓存frame
         NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:self.columnNumber * self.rowNumber];
-        for (NSInteger i = 0; i != self.rowHeight; ++i) {
+        for (NSInteger i = 0; i != self.rowNumber; ++i) {
             for (NSInteger j = 0; j != self.columnNumber; ++j) {
                 CGRect frame = [self frameForItem:i * self.columnNumber + j];
                 [tmpArr addObject:[NSValue valueWithCGRect:frame]];
@@ -342,7 +342,7 @@ NSInteger const zIndexCell = 0;
 
     if (_showHorizonLine) {
         // 最后一行不显示分割线
-        for (NSInteger i = 0; i != _rowHeight - 1; ++i) {
+        for (NSInteger i = 0; i != _rowNumber - 1; ++i) {
             [attributes addObject:[self layoutAttributesForDecorationViewOfKind:UICollectionElementKindHorizonLine atIndexPath:[NSIndexPath indexPathForItem:i inSection:0]]];
         }
     }
