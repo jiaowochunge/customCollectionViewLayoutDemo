@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FFE0C09B1B8C096C00047467 /* SepicalHeadCollectionReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE0C0991B8C096C00047467 /* SepicalHeadCollectionReusableView.m */; };
+		FFE0C09C1B8C096C00047467 /* SepicalHeadCollectionReusableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFE0C09A1B8C096C00047467 /* SepicalHeadCollectionReusableView.xib */; };
 		FFE2DF701B7C39E0009E4D10 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF6F1B7C39E0009E4D10 /* main.m */; };
 		FFE2DF731B7C39E0009E4D10 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF721B7C39E0009E4D10 /* AppDelegate.m */; };
 		FFE2DF761B7C39E0009E4D10 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FFE2DF751B7C39E0009E4D10 /* ViewController.m */; };
@@ -30,6 +32,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FFE0C0981B8C096C00047467 /* SepicalHeadCollectionReusableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SepicalHeadCollectionReusableView.h; sourceTree = "<group>"; };
+		FFE0C0991B8C096C00047467 /* SepicalHeadCollectionReusableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SepicalHeadCollectionReusableView.m; sourceTree = "<group>"; };
+		FFE0C09A1B8C096C00047467 /* SepicalHeadCollectionReusableView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SepicalHeadCollectionReusableView.xib; sourceTree = "<group>"; };
 		FFE2DF6A1B7C39E0009E4D10 /* CustomCollectionViewLayoutDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomCollectionViewLayoutDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFE2DF6E1B7C39E0009E4D10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FFE2DF6F1B7C39E0009E4D10 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -98,6 +103,9 @@
 				FFE2DF941B7C39F8009E4D10 /* NumCollectionViewCell.m */,
 				FFE2DF951B7C39F8009E4D10 /* NumCollectionReusableView.h */,
 				FFE2DF961B7C39F8009E4D10 /* NumCollectionReusableView.m */,
+				FFE0C0981B8C096C00047467 /* SepicalHeadCollectionReusableView.h */,
+				FFE0C0991B8C096C00047467 /* SepicalHeadCollectionReusableView.m */,
+				FFE0C09A1B8C096C00047467 /* SepicalHeadCollectionReusableView.xib */,
 				FFE2DF971B7C39F8009E4D10 /* DoubleGridLayout.h */,
 				FFE2DF981B7C39F8009E4D10 /* DoubleGridLayout.m */,
 				FFE2DF771B7C39E0009E4D10 /* Main.storyboard */,
@@ -217,6 +225,7 @@
 				FFE2DF791B7C39E0009E4D10 /* Main.storyboard in Resources */,
 				FFE2DF7E1B7C39E0009E4D10 /* LaunchScreen.xib in Resources */,
 				FFE2DF7B1B7C39E0009E4D10 /* Images.xcassets in Resources */,
+				FFE0C09C1B8C096C00047467 /* SepicalHeadCollectionReusableView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +247,7 @@
 				FFE2DF991B7C39F8009E4D10 /* NumCollectionViewCell.m in Sources */,
 				FFE2DF9B1B7C39F8009E4D10 /* DoubleGridLayout.m in Sources */,
 				FFE2DF731B7C39E0009E4D10 /* AppDelegate.m in Sources */,
+				FFE0C09B1B8C096C00047467 /* SepicalHeadCollectionReusableView.m in Sources */,
 				FFE2DF701B7C39E0009E4D10 /* main.m in Sources */,
 				FFE2DF9A1B7C39F8009E4D10 /* NumCollectionReusableView.m in Sources */,
 			);
@@ -434,6 +444,7 @@
 				FFE2DF8F1B7C39E0009E4D10 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FFE2DF901B7C39E0009E4D10 /* Build configuration list for PBXNativeTarget "CustomCollectionViewLayoutDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -442,6 +453,7 @@
 				FFE2DF921B7C39E0009E4D10 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -10,6 +10,7 @@
 
 extern NSString *const UICollectionElementKindTopHeader;
 extern NSString *const UICollectionElementKindLeftHeader;
+extern NSString *const UICollectionElementKindSupplyHeader;
 
 @protocol UICollectionViewDelegateDoubleGridLayout <UICollectionViewDelegate>
 
@@ -50,6 +51,9 @@ extern NSString *const UICollectionElementKindLeftHeader;
 
 // 左上角cell算左边header还是上面header。默认为NO，算上面header。那么上表头个数为columnNumber + 1，左表头格子数为rowNumber，从第二行算起
 @property (nonatomic, assign) BOOL leftTopHeaderIsLeft;
+
+// 额外添加一个头部
+@property (nonatomic, assign) CGFloat supplyHeaderHeight;
 
 // 是否显示表格水平分割线。默认不显示
 @property (nonatomic, assign) BOOL showHorizonLine;

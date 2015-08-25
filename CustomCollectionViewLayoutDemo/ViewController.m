@@ -10,6 +10,7 @@
 #import "DoubleGridLayout.h"
 #import "NumCollectionViewCell.h"
 #import "NumCollectionReusableView.h"
+#import "SepicalHeadCollectionReusableView.h"
 
 @interface ViewController ()<UICollectionViewDataSource, UICollectionViewDelegateDoubleGridLayout>
 
@@ -30,8 +31,8 @@
     layout.columnNumber = 10;
     layout.leftHeaderWidth = 80;
     layout.topHeaderHeight = 50;
+    layout.supplyHeaderHeight = 40;
     layout.showHorizonLine = YES;
-    layout.extendHorizonLine = YES;
     layout.showVerticalLine = YES;
     
     NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:300];
@@ -48,6 +49,7 @@
     [collectionView registerClass:[NumCollectionViewCell class] forCellWithReuseIdentifier:@"MY_CELL"];
     [collectionView registerClass:[NumCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindTopHeader withReuseIdentifier:@"TOP_HEAD"];
     [collectionView registerClass:[NumCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindLeftHeader withReuseIdentifier:@"LEFT_HEAD"];
+    [collectionView registerNib:[UINib nibWithNibName:@"SepicalHeadCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSupplyHeader withReuseIdentifier:@"SUPPLY_HEAD"];
     collectionView.backgroundColor = [UIColor whiteColor];
     collectionView.directionalLockEnabled = YES;
     [self.view addSubview:collectionView];
@@ -81,10 +83,14 @@
         view.numLabel.text = [NSString stringWithFormat:@"top %ld", (long)indexPath.item];
         view.backgroundColor = [UIColor redColor];
         return view;
-    } else {
+    } else if ([kind isEqualToString:UICollectionElementKindLeftHeader]) {
         NumCollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"LEFT_HEAD" forIndexPath:indexPath];
         view.numLabel.text = [NSString stringWithFormat:@"left %ld", (long)indexPath.item];
         view.backgroundColor = [UIColor greenColor];
+        return view;
+    } else {
+        SepicalHeadCollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"SUPPLY_HEAD" forIndexPath:indexPath];
+        view.label.text = @"hello, world";
         return view;
     }
 }

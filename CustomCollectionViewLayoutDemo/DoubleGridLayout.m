@@ -10,6 +10,7 @@
 
 NSString *const UICollectionElementKindTopHeader = @"UICollectionElementKindTopHeader";
 NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLeftHeader";
+NSString *const UICollectionElementKindSupplyHeader = @"UICollectionElementKindSupplyHeader";
 
 NSString *const UICollectionElementKindVerticalLine = @"UICollectionElementKindVerticalLine";
 NSString *const UICollectionElementKindHorizonLine = @"UICollectionElementKindHorizonLine";
@@ -57,8 +58,8 @@ NSInteger const zIndexCell = 0;
 {
     [super prepareLayout];
     
-    // content offset 变化时，无需重新计算cell的frame
-    if (!self.cellFrameArr) {
+    // content offset 变化时，无需重新计算cell的frame。取消缓存机制，代码难写。修改了rowHeight或者任一高度时，都应该重新计算。其实只是contentoffset修改时不用重新计算，但我找不到优雅的办法判断什么时候是contentoffset变化。先修复bug，优化将来再说。
+//    if (!self.cellFrameArr) {
         // 缓存frame
         NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:self.columnNumber * self.rowNumber];
         for (NSInteger i = 0; i != self.rowHeight; ++i) {
@@ -68,7 +69,7 @@ NSInteger const zIndexCell = 0;
             }
         }
         self.cellFrameArr = tmpArr;
-    }
+//    }
     
     id<UICollectionViewDelegateDoubleGridLayout> collectionViewDelegate = (id<UICollectionViewDelegateDoubleGridLayout>)self.collectionView.delegate;
 
@@ -76,7 +77,7 @@ NSInteger const zIndexCell = 0;
     NSMutableArray *tmpArr2 = [NSMutableArray arrayWithCapacity:self.rowNumber + 1];
     for (NSInteger i = 0; i != self.rowNumber; ++i) {
         CGFloat x = self.collectionView.contentOffset.x;
-        CGFloat y = self.topHeaderHeight;
+        CGFloat y = self.topHeaderHeight + self.supplyHeaderHeight;
         // 计算规则。第一行高 topHeaderHeight 累加其他行高
         if ([collectionViewDelegate respondsToSelector:@selector(collectionView:heightForRow:)]) {
             for (NSInteger j = 0; j < i; ++j) {
@@ -99,8 +100,11 @@ NSInteger const zIndexCell = 0;
     
     // 插入左上角
     if (_leftTopHeaderIsLeft) {
-        CGRect frame = CGRectMake(0, 0, self.leftHeaderWidth, self.topHeaderHeight);
+        CGRect frame = CGRectMake(0, 0, self.leftHeaderWidth, self.topHeaderHeight + self.supplyHeaderHeight);
         frame.origin = self.collectionView.contentOffset;
+        if (self.supplyHeaderHeight > 0) {
+            frame.origin.y = MAX(self.supplyHeaderHeight, frame.origin.y);
+        }
         [tmpArr2 insertObject:[NSValue valueWithCGRect:frame] atIndex:0];
     }
     self.leftHeaderFrameArr = tmpArr2;
@@ -109,6 +113,10 @@ NSInteger const zIndexCell = 0;
     NSMutableArray *tmpArr3 = [NSMutableArray arrayWithCapacity:self.columnNumber + 1];
     for (NSInteger i = 0; i != self.columnNumber; ++i) {
         CGFloat y = self.collectionView.contentOffset.y;
+        // 当上表头存在额外视图时，上表头相对浮动
+        if (self.supplyHeaderHeight > 0) {
+            y = MAX(self.collectionView.contentOffset.y, self.supplyHeaderHeight);
+        }
         CGFloat x = self.leftHeaderWidth;
         if ([collectionViewDelegate respondsToSelector:@selector(collectionView:widthForColumn:)]) {
             for (NSInteger j = 0; j < i; ++j) {
@@ -132,6 +140,9 @@ NSInteger const zIndexCell = 0;
     if (!_leftTopHeaderIsLeft) {
         CGRect frame = CGRectMake(0, 0, self.leftHeaderWidth, self.topHeaderHeight);
         frame.origin = self.collectionView.contentOffset;
+        if (self.supplyHeaderHeight > 0) {
+            frame.origin.y = MAX(self.supplyHeaderHeight, frame.origin.y);
+        }
         [tmpArr3 insertObject:[NSValue valueWithCGRect:frame] atIndex:0];
     }
     self.topHeaderFrameArr = tmpArr3;
@@ -157,7 +168,7 @@ NSInteger const zIndexCell = 0;
     }
     width = MAX(width, self.collectionView.frame.size.width);
     
-    CGFloat height = self.topHeaderHeight;
+    CGFloat height = self.topHeaderHeight + self.supplyHeaderHeight;
     for (NSInteger j = 0; j < self.rowNumber; ++j) {
         if ([collectionViewDelegate respondsToSelector:@selector(collectionView:heightForRow:)]) {
             height += [collectionViewDelegate collectionView:self.collectionView heightForRow:j];
@@ -186,7 +197,7 @@ NSInteger const zIndexCell = 0;
         x += column * self.columnWidth;
     }
     // 计算y坐标
-    CGFloat y = self.topHeaderHeight;
+    CGFloat y = self.topHeaderHeight + self.supplyHeaderHeight;
     if ([collectionViewDelegate respondsToSelector:@selector(collectionView:heightForRow:)]) {
         for (NSInteger j = 0; j < row; ++j) {
             y += [collectionViewDelegate collectionView:self.collectionView heightForRow:j];
@@ -243,6 +254,8 @@ NSInteger const zIndexCell = 0;
         } else {
             attributes.zIndex = zIndexHeadLeft;
         }
+    }  else if ([elementKind isEqualToString:UICollectionElementKindSupplyHeader]) {
+        attributes.frame = CGRectMake(self.collectionView.contentOffset.x, 0, CGRectGetWidth(self.collectionView.frame), self.supplyHeaderHeight);
     } else {
         NSAssert(false, @"no such kind SupplementaryView");
     }
@@ -281,12 +294,11 @@ NSInteger const zIndexCell = 0;
         }
         CGRect topHeadFrame = [self.topHeaderFrameArr[topHeadIndex] CGRectValue];
         CGFloat xPos = CGRectGetMaxX(topHeadFrame);
-        CGFloat yPos = self.collectionView.contentOffset.y + _topHeaderHeight;
-        CGFloat height = self.collectionView.frame.size.height - _topHeaderHeight;
+        CGFloat yPos = CGRectGetMaxY(topHeadFrame);
         if (_extendVerticalLine) {
-            yPos = self.collectionView.contentOffset.y;
-            height = self.collectionView.frame.size.height;
+            yPos = CGRectGetMinY(topHeadFrame);
         }
+        CGFloat height = self.collectionView.frame.size.height + self.collectionView.contentOffset.y - yPos;
         attributes.frame = CGRectMake(xPos, yPos, 0.5, height);
         attributes.zIndex = zIndexSeperateLine;
         // 左表头左边的垂线不显示
@@ -324,7 +336,10 @@ NSInteger const zIndexCell = 0;
     for (NSInteger j = 0; j != topHeaderCellCount; ++j) {
         [attributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindTopHeader atIndexPath:[NSIndexPath indexPathForItem:j inSection:0]]];
     }
-    
+    if (_supplyHeaderHeight > 0) {
+        [attributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSupplyHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]]];
+    }
+
     if (_showHorizonLine) {
         // 最后一行不显示分割线
         for (NSInteger i = 0; i != _rowHeight - 1; ++i) {
