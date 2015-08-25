@@ -11,6 +11,26 @@
 NSString *const UICollectionElementKindTopHeader = @"UICollectionElementKindTopHeader";
 NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLeftHeader";
 
+NSString *const UICollectionElementKindVerticalLine = @"UICollectionElementKindVerticalLine";
+NSString *const UICollectionElementKindHorizonLine = @"UICollectionElementKindHorizonLine";
+
+NSInteger const zIndexHeadTopLeft = 20;
+NSInteger const zIndexHeadTop = 10;
+NSInteger const zIndexHeadLeft = 5;
+NSInteger const zIndexSeperateLine = 25;
+NSInteger const zIndexCell = 0;
+
+
+@interface DoubleGridHorizonLine : UICollectionReusableView
+
+@end
+
+@interface DoubleGridVerticalLine : UICollectionReusableView
+
+@end
+
+#pragma mark - DoubleGridLayout
+
 @interface DoubleGridLayout ()
 
 @property (nonatomic, strong) NSArray *cellFrameArr;
@@ -22,6 +42,16 @@ NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLef
 @end
 
 @implementation DoubleGridLayout
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self registerClass:[DoubleGridHorizonLine class] forDecorationViewOfKind:UICollectionElementKindHorizonLine];
+        [self registerClass:[DoubleGridVerticalLine class] forDecorationViewOfKind:UICollectionElementKindVerticalLine];
+    }
+    return self;
+}
 
 - (void)prepareLayout
 {
@@ -182,6 +212,7 @@ NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLef
     UICollectionViewLayoutAttributes* attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:path];
     
     attributes.frame = [self.cellFrameArr[path.item] CGRectValue];
+    attributes.zIndex = zIndexCell;
     
     return attributes;
 }
@@ -193,27 +224,77 @@ NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLef
         attributes.frame = [self.topHeaderFrameArr[indexPath.item] CGRectValue];
         // 左上角算左表头时，左表头优先显示
         if (_leftTopHeaderIsLeft) {
-            attributes.zIndex = 5;
+            attributes.zIndex = zIndexHeadLeft;
         } else {
-            attributes.zIndex = 10;
+            attributes.zIndex = zIndexHeadTop;
             // 左上角优先级最高
             if (indexPath.item == 0) {
-                attributes.zIndex = 20;
+                attributes.zIndex = zIndexHeadTopLeft;
             }
         }
     } else if ([elementKind isEqualToString:UICollectionElementKindLeftHeader]) {
         attributes.frame = [self.leftHeaderFrameArr[indexPath.item] CGRectValue];
         if (_leftTopHeaderIsLeft) {
-            attributes.zIndex = 10;
+            attributes.zIndex = zIndexHeadTop;
             // 左上角优先级最高
             if (indexPath.item == 0) {
-                attributes.zIndex = 20;
+                attributes.zIndex = zIndexHeadTopLeft;
             }
         } else {
-            attributes.zIndex = 5;
+            attributes.zIndex = zIndexHeadLeft;
         }
     } else {
         NSAssert(false, @"no such kind SupplementaryView");
+    }
+    return attributes;
+}
+
+- (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)elementKind atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes layoutAttributesForDecorationViewOfKind:elementKind withIndexPath:indexPath];
+    if ([elementKind isEqualToString:UICollectionElementKindHorizonLine]) {
+        // 取左表头已经算好的坐标
+        NSInteger leftHeadIndex = indexPath.item;
+        if (_leftTopHeaderIsLeft) {
+            ++leftHeadIndex;
+        }
+        // 纵坐标是frame的下边y值
+        CGRect leftHeadFrame = [self.leftHeaderFrameArr[leftHeadIndex] CGRectValue];
+        CGFloat yPos = CGRectGetMaxY(leftHeadFrame);
+        // 计算横坐标和宽度
+        CGFloat xPos = self.collectionView.contentOffset.x + _leftHeaderWidth;
+        CGFloat width = self.collectionView.frame.size.width - _leftHeaderWidth;
+        if (_extendHorizonLine) {
+            xPos = self.collectionView.contentOffset.x;
+            width = self.collectionView.frame.size.width;
+        }
+        attributes.frame = CGRectMake(xPos, yPos, width, 0.5);
+        attributes.zIndex = zIndexSeperateLine;
+        // 上表头以上的水平线不显示。线的zIndex比表头的要大，会显示在表头以上，做个隐藏处理
+        if (yPos < self.collectionView.contentOffset.y + _topHeaderHeight) {
+            attributes.hidden = YES;
+        }
+    } else if ([elementKind isEqualToString:UICollectionElementKindVerticalLine]) {
+        NSInteger topHeadIndex = indexPath.item;
+        if (!_leftTopHeaderIsLeft) {
+            ++topHeadIndex;
+        }
+        CGRect topHeadFrame = [self.topHeaderFrameArr[topHeadIndex] CGRectValue];
+        CGFloat xPos = CGRectGetMaxX(topHeadFrame);
+        CGFloat yPos = self.collectionView.contentOffset.y + _topHeaderHeight;
+        CGFloat height = self.collectionView.frame.size.height - _topHeaderHeight;
+        if (_extendVerticalLine) {
+            yPos = self.collectionView.contentOffset.y;
+            height = self.collectionView.frame.size.height;
+        }
+        attributes.frame = CGRectMake(xPos, yPos, 0.5, height);
+        attributes.zIndex = zIndexSeperateLine;
+        // 左表头左边的垂线不显示
+        if (xPos < self.collectionView.contentOffset.x + _leftHeaderWidth) {
+            attributes.hidden = YES;
+        }
+    } else {
+        NSAssert(false, @"no such kind DecorationView");
     }
     return attributes;
 }
@@ -243,8 +324,49 @@ NSString *const UICollectionElementKindLeftHeader = @"UICollectionElementKindLef
     for (NSInteger j = 0; j != topHeaderCellCount; ++j) {
         [attributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindTopHeader atIndexPath:[NSIndexPath indexPathForItem:j inSection:0]]];
     }
+    
+    if (_showHorizonLine) {
+        // 最后一行不显示分割线
+        for (NSInteger i = 0; i != _rowHeight - 1; ++i) {
+            [attributes addObject:[self layoutAttributesForDecorationViewOfKind:UICollectionElementKindHorizonLine atIndexPath:[NSIndexPath indexPathForItem:i inSection:0]]];
+        }
+    }
+    if (_showVerticalLine) {
+        // 最后一列不显示分割线
+        for (NSInteger j = 0; j != _columnNumber - 1; ++j) {
+            [attributes addObject:[self layoutAttributesForDecorationViewOfKind:UICollectionElementKindVerticalLine atIndexPath:[NSIndexPath indexPathForItem:j inSection:0]]];
+        }
+    }
 
     return attributes;
+}
+
+@end
+
+#pragma mark - separate line
+
+@implementation DoubleGridHorizonLine
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor lightGrayColor];
+    }
+    return self;
+}
+
+@end
+
+@implementation DoubleGridVerticalLine
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor lightGrayColor];
+    }
+    return self;
 }
 
 @end

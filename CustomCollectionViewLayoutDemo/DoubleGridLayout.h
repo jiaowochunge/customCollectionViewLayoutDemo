@@ -51,4 +51,14 @@ extern NSString *const UICollectionElementKindLeftHeader;
 // 左上角cell算左边header还是上面header。默认为NO，算上面header。那么上表头个数为columnNumber + 1，左表头格子数为rowNumber，从第二行算起
 @property (nonatomic, assign) BOOL leftTopHeaderIsLeft;
 
+// 是否显示表格水平分割线。默认不显示
+@property (nonatomic, assign) BOOL showHorizonLine;
+// 水平分割线是否延伸至左表头。默认否
+@property (nonatomic, assign) BOOL extendHorizonLine;
+
+// 是否显示表格垂直分割线。默认不显示
+@property (nonatomic, assign) BOOL showVerticalLine;
+// 垂直分割线是否延伸至上表头。默认否
+@property (nonatomic, assign) BOOL extendVerticalLine;
+
 @end

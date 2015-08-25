@@ -30,6 +30,9 @@
     layout.columnNumber = 10;
     layout.leftHeaderWidth = 80;
     layout.topHeaderHeight = 50;
+    layout.showHorizonLine = YES;
+    layout.extendHorizonLine = YES;
+    layout.showVerticalLine = YES;
     
     NSMutableArray *tmpArr = [NSMutableArray arrayWithCapacity:300];
     for (int i = 0; i != 10; ++i) {
