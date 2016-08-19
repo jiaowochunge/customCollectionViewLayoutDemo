@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         
         let layout = collectionView.collectionViewLayout as! FloatFlexCollectionViewLayout
         layout.headerReferenceSize = CGSizeMake(320, 100)
-//        layout.floatHeaderRegion = CGRect(x: 30, y: 30, width: 50, height: 50)
+        layout.floatHeaderRegion = CGRect(x: 30, y: 30, width: 50, height: 50)
         
         collectionView.registerNib(UINib(nibName: "FixSupplementaryHeadCollectionReusableView", bundle: nil), forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "head")
         collectionView.registerNib(UINib(nibName: "SupplyHeadCollectionReusableView", bundle: nil), forSupplementaryViewOfKind: UICollectionElementKindSectionHeaderFloat, withReuseIdentifier: "supplementaryHead")
