@@ -158,7 +158,16 @@ extension FloatFlexCollectionViewLayout {
             // 第0个section不用处理，第n个section需要加额外的(n-1)*CGRectGetMaxY(floatHeaderRegion)高度
 
             if indexPath.section == 0 {
-                return super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath)
+                // 这个地方不能直接 return super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath)。否则会返回一个nil，导致浮动头部无法根据这个header的相关属性计算。
+                if let super_attributes = super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath) {
+                    return super_attributes
+                } else {
+                    let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, withIndexPath: indexPath)
+                    attributes.frame = CGRectZero
+                    // 为什么是10，我也不知道。debug打印日志得到的
+                    attributes.zIndex = 10
+                    return attributes
+                }
             } else {
                 if let super_attributes = super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath) {
                     let attributes = super_attributes.copy() as! UICollectionViewLayoutAttributes
@@ -173,7 +182,11 @@ extension FloatFlexCollectionViewLayout {
                     
                     return attributes
                 } else {
-                    return nil
+                    let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, withIndexPath: indexPath)
+                    attributes.frame = CGRectZero
+                    // 为什么是10，我也不知道。debug打印日志得到的
+                    attributes.zIndex = 10
+                    return attributes
                 }
             }
         } else if elementKind == UICollectionElementKindSectionFooter {
@@ -190,7 +203,15 @@ extension FloatFlexCollectionViewLayout {
                 
                 return attributes
             } else {
-                return nil
+                let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, withIndexPath: indexPath)
+                if self.scrollDirection == .Vertical {
+                    attributes.frame = CGRect(x: 0, y: CGFloat.max, width: 0, height: 0)
+                } else {
+                    attributes.frame = CGRect(x: CGFloat.max, y: 0, width: 0, height: 0)
+                }
+                // 为什么是10，我也不知道。debug打印日志得到的
+                attributes.zIndex = 10
+                return attributes
             }
         } else {
             // this is impossible. we can assert but we dont.
