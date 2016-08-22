@@ -8,6 +8,25 @@
 
 import UIKit
 
+/**
+ *  定义浮动头部参数
+ *	TODO: not implemented yet
+ */
+@objc protocol UICollectionViewDelegateFloatFlex: UICollectionViewDelegateFlowLayout {
+
+    /**
+     浮动头部高度伸缩区间。覆盖 floatHeaderRegion
+     
+     - parameter collectionView:		The collection view object displaying the flow layout.
+     - parameter collectionViewLayout:	The layout object requesting the information.
+     - parameter section:				The index of the section whose header rect is being requested
+     
+     - returns: The float region of the header
+     */
+    optional func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceFloatRegionForHeaderInSection section: Int) -> CGRect
+
+}
+
 /// 浮动头部，demo效果是，如果添加一个 UICollectionElementKindSectionHeader 代表的头部，该浮动头部在 UICollectionElementKindSectionHeader 以下
 let UICollectionElementKindSectionHeaderFloat = "UICollectionElementKindSectionFloatHeader"
 
@@ -25,9 +44,6 @@ class FloatFlexCollectionViewLayout: UICollectionViewFlowLayout {
     /// 浮动头部高度伸缩区间。当滚动方向为垂直方向时，`y`表示最小高度，`y + height`表示最大高度。宽度与`collectionView`一致
     var floatHeaderRegion: CGRect = CGRectZero
     
-    /// 缓存 UICollectionElementKindSectionHeader 尺寸
-    private var fixedHeadSize: [CGSize]!
-    
     /// 缓存
     private var sectionNum: Int = 1
 
@@ -38,24 +54,12 @@ extension FloatFlexCollectionViewLayout {
     override func prepareLayout() {
         super.prepareLayout()
         
-        // 缓存固定头部高度
-        if fixedHeadSize == nil {
-            fixedHeadSize = []
-            guard let dataSource = self.collectionView?.dataSource, let delegate = self.collectionView?.delegate as? UICollectionViewDelegateFlowLayout else {
-                fatalError()
-            }
-            
-            if let num = dataSource.numberOfSectionsInCollectionView?(self.collectionView!) {
-                sectionNum = num
-            }
-            // UICollectionElementKindSectionHeader 头部高度
-            for i in 0 ..< sectionNum {
-                var sectionFixHeaderSize: CGSize! = delegate.collectionView?(self.collectionView!, layout: self, referenceSizeForHeaderInSection: i)
-                if sectionFixHeaderSize == nil {
-                    sectionFixHeaderSize = self.headerReferenceSize
-                }
-                fixedHeadSize.append(sectionFixHeaderSize)
-            }
+        guard let dataSource = self.collectionView?.dataSource else {
+            fatalError()
+        }
+        
+        if let num = dataSource.numberOfSectionsInCollectionView?(self.collectionView!) {
+            sectionNum = num
         }
 
     }
@@ -88,9 +92,9 @@ extension FloatFlexCollectionViewLayout {
             
             var frame = attributes.frame
             if self.scrollDirection == .Vertical {
-                frame.origin.y += CGRectGetMaxY(floatHeaderRegion)
+                frame.origin.y += CGRectGetMaxY(floatHeaderRegion) * CGFloat(indexPath.section + 1)
             } else {
-                frame.origin.x += CGRectGetMaxX(floatHeaderRegion)
+                frame.origin.x += CGRectGetMaxX(floatHeaderRegion) * CGFloat(indexPath.section + 1)
             }
             attributes.frame = frame
             
@@ -102,42 +106,95 @@ extension FloatFlexCollectionViewLayout {
     
     override func layoutAttributesForSupplementaryViewOfKind(elementKind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionViewLayoutAttributes? {
         if elementKind == UICollectionElementKindSectionHeaderFloat {
+            // 自己算不好算，让父类去算吧
+            guard let head_attributes = layoutAttributesForSupplementaryViewOfKind(UICollectionElementKindSectionHeader, atIndexPath: indexPath), let foot_attributes = layoutAttributesForSupplementaryViewOfKind(UICollectionElementKindSectionFooter, atIndexPath: indexPath) else {
+                return nil
+            }
             let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, withIndexPath: indexPath)
 
-            // TODO: 支持多个section
             // 计算frame
             if self.scrollDirection == .Vertical {
                 // 固定头部依然可见
-                if self.collectionView!.contentOffset.y < fixedHeadSize[indexPath.section].height {
-                    attributes.frame = CGRect(x: 0, y: fixedHeadSize[indexPath.section].height, width: self.collectionView!.frame.width, height: CGRectGetMaxY(floatHeaderRegion))
+                if self.collectionView!.contentOffset.y < CGRectGetMaxY(head_attributes.frame) {
+                    attributes.frame = CGRect(x: 0, y: CGRectGetMaxY(head_attributes.frame), width: self.collectionView!.frame.width, height: CGRectGetMaxY(floatHeaderRegion))
+                }
+                // 这个section将消失，这时浮动头部固定位置，随着collectionView滑动一起消失
+                else if self.collectionView!.contentOffset.y > CGRectGetMaxY(foot_attributes.frame) - floatHeaderRegion.origin.y {
+                    attributes.frame = CGRect(x: 0, y: CGRectGetMaxY(foot_attributes.frame) - floatHeaderRegion.origin.y, width: self.collectionView!.frame.width, height: floatHeaderRegion.origin.y)
                 }
                 // 最小尺寸浮动
-                else if self.collectionView!.contentOffset.y > fixedHeadSize[indexPath.section].height + CGRectGetMaxY(floatHeaderRegion) {
+                else if self.collectionView!.contentOffset.y > CGRectGetMaxY(head_attributes.frame) + CGRectGetMaxY(floatHeaderRegion) {
                     attributes.frame = CGRect(x: 0, y: self.collectionView!.contentOffset.y, width: self.collectionView!.frame.width, height: floatHeaderRegion.origin.y)
-                } else {
-                    let deltaY = self.collectionView!.contentOffset.y - fixedHeadSize[indexPath.section].height
+                }
+                // 可变尺寸浮动
+                else {
+                    let deltaY = self.collectionView!.contentOffset.y - CGRectGetMaxY(head_attributes.frame)
                     attributes.frame = CGRect(x: 0, y: self.collectionView!.contentOffset.y, width: self.collectionView!.frame.width, height: max(CGRectGetMinY(floatHeaderRegion), CGRectGetMaxY(floatHeaderRegion) - deltaY))
                 }
             } else {
                 // 固定头部依然可见
-                if self.collectionView!.contentOffset.x < fixedHeadSize[indexPath.section].width {
-                    attributes.frame = CGRect(x: fixedHeadSize[indexPath.section].width, y: 0, width: CGRectGetMaxX(floatHeaderRegion), height: self.collectionView!.frame.height)
+                if self.collectionView!.contentOffset.x < CGRectGetMaxX(head_attributes.frame) {
+                    attributes.frame = CGRect(x: CGRectGetMaxX(head_attributes.frame), y: 0, width: CGRectGetMaxX(floatHeaderRegion), height: self.collectionView!.frame.height)
                 }
-                    // 最小尺寸浮动
-                else if self.collectionView!.contentOffset.x > fixedHeadSize[indexPath.section].width + CGRectGetMaxX(floatHeaderRegion) {
+                // 这个section将消失，这时浮动头部固定位置，随着collectionView滑动一起消失
+                else if self.collectionView!.contentOffset.x > CGRectGetMaxX(foot_attributes.frame) - floatHeaderRegion.origin.x {
+                    attributes.frame = CGRect(x: CGRectGetMaxX(foot_attributes.frame) - floatHeaderRegion.origin.x, y: 0, width: floatHeaderRegion.origin.x, height: self.collectionView!.frame.height)
+                }
+                // 最小尺寸浮动
+                else if self.collectionView!.contentOffset.x > CGRectGetMaxX(head_attributes.frame) + CGRectGetMaxX(floatHeaderRegion) {
                     attributes.frame = CGRect(x: self.collectionView!.contentOffset.x, y: 0, width: floatHeaderRegion.origin.x, height: self.collectionView!.frame.height)
-                } else {
-                    let deltaX = self.collectionView!.contentOffset.x - fixedHeadSize[indexPath.section].width
+                }
+                // 可变尺寸浮动
+                else {
+                    let deltaX = self.collectionView!.contentOffset.x - CGRectGetMaxX(head_attributes.frame)
                     attributes.frame = CGRect(x: self.collectionView!.contentOffset.x, y: 0, width: max(CGRectGetMaxX(floatHeaderRegion) - deltaX, CGRectGetMinX(floatHeaderRegion)), height: self.collectionView!.frame.height)
                 }
             }
             
-            // 并不知道其他元素的高度是多少，随便设置一个
-            attributes.zIndex = 10
+            attributes.zIndex = head_attributes.zIndex + 1
             
             return attributes
+        } else if elementKind == UICollectionElementKindSectionHeader {
+            // 第0个section不用处理，第n个section需要加额外的(n-1)*CGRectGetMaxY(floatHeaderRegion)高度
+
+            if indexPath.section == 0 {
+                return super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath)
+            } else {
+                if let super_attributes = super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath) {
+                    let attributes = super_attributes.copy() as! UICollectionViewLayoutAttributes
+                    
+                    var frame = attributes.frame
+                    if self.scrollDirection == .Vertical {
+                        frame.origin.y += CGRectGetMaxY(floatHeaderRegion) * CGFloat(indexPath.section)
+                    } else {
+                        frame.origin.x += CGRectGetMaxX(floatHeaderRegion) * CGFloat(indexPath.section)
+                    }
+                    attributes.frame = frame
+                    
+                    return attributes
+                } else {
+                    return nil
+                }
+            }
+        } else if elementKind == UICollectionElementKindSectionFooter {
+            if let super_attributes = super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath) {
+                let attributes = super_attributes.copy() as! UICollectionViewLayoutAttributes
+                
+                var frame = attributes.frame
+                if self.scrollDirection == .Vertical {
+                    frame.origin.y += CGRectGetMaxY(floatHeaderRegion) * CGFloat(indexPath.section + 1)
+                } else {
+                    frame.origin.x += CGRectGetMaxX(floatHeaderRegion) * CGFloat(indexPath.section + 1)
+                }
+                attributes.frame = frame
+                
+                return attributes
+            } else {
+                return nil
+            }
         } else {
-            return super.layoutAttributesForSupplementaryViewOfKind(elementKind, atIndexPath: indexPath)
+            // this is impossible. we can assert but we dont.
+            return nil
         }
     }
     
@@ -162,7 +219,7 @@ extension FloatFlexCollectionViewLayout {
         }
         // 添加浮动头部
         for i in 0 ..< sectionNum {
-            if let attributes = self.layoutAttributesForSupplementaryViewOfKind(UICollectionElementKindSectionHeaderFloat, atIndexPath: NSIndexPath(forItem: 0, inSection: i)) {
+            if let attributes = self.layoutAttributesForSupplementaryViewOfKind(UICollectionElementKindSectionHeaderFloat, atIndexPath: NSIndexPath(forItem: 0, inSection: i)) where CGRectIntersectsRect(rect, attributes.frame) {
                 attributesArr.append(attributes)
             }
         }
